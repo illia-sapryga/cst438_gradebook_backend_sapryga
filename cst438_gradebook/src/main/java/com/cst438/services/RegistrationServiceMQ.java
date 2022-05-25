@@ -5,6 +5,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cst438.domain.Course;
@@ -25,6 +26,9 @@ public class RegistrationServiceMQ extends RegistrationService {
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
+	
+	@Value("${registration.url}") 
+	String registration_url;
 
 	public RegistrationServiceMQ() {
 		System.out.println("MQ registration service ");
@@ -43,16 +47,22 @@ public class RegistrationServiceMQ extends RegistrationService {
 	@RabbitListener(queues = "gradebook-queue")
 	@Transactional
 	public void receive(EnrollmentDTO enrollmentDTO) {
-		
-		//TODO  complete this method in homework 4
-		
+		Enrollment enrollment = enrollmentRepository.findByEmailAndCourseId(enrollmentDTO.studentEmail, enrollmentDTO.course_id);
+		if (enrollment==null) {
+			enrollment = new Enrollment();
+			enrollment.setStudentEmail(enrollmentDTO.studentEmail);
+			enrollment.setStudentName(enrollmentDTO.studentName);
+			Course course=courseRepository.findById(enrollmentDTO.course_id).orElse(null);
+			enrollment.setCourse(course);
+			enrollmentRepository.save(enrollment);
+		}
 	}
 
 	// sender of messages to Registration Service
 	@Override
 	public void sendFinalGrades(int course_id, CourseDTOG courseDTO) {
 		 
-		//TODO  complete this method in homework 4
+		this.rabbitTemplate.convertAndSend(registrationQueue, courseDTO.grades);
 		
 	}
 
