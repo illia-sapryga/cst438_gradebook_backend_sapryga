@@ -47,23 +47,19 @@ public class RegistrationServiceMQ extends RegistrationService {
 	@RabbitListener(queues = "gradebook-queue")
 	@Transactional
 	public void receive(EnrollmentDTO enrollmentDTO) {
-		Enrollment enrollment = enrollmentRepository.findByEmailAndCourseId(enrollmentDTO.studentEmail, enrollmentDTO.course_id);
-		if (enrollment==null) {
-			enrollment = new Enrollment();
-			enrollment.setStudentEmail(enrollmentDTO.studentEmail);
-			enrollment.setStudentName(enrollmentDTO.studentName);
-			Course course=courseRepository.findById(enrollmentDTO.course_id).orElse(null);
-			enrollment.setCourse(course);
-			enrollmentRepository.save(enrollment);
-		}
+		Enrollment enrollment = new Enrollment();
+		enrollment.setId(enrollmentDTO.id);
+		enrollment.setStudentEmail(enrollmentDTO.studentEmail);
+		enrollment.setStudentName(enrollmentDTO.studentName);
+		Course course=courseRepository.findById(enrollmentDTO.course_id).orElse(null);
+		enrollment.setCourse(course);
+		enrollmentRepository.save(enrollment);
 	}
 
 	// sender of messages to Registration Service
 	@Override
 	public void sendFinalGrades(int course_id, CourseDTOG courseDTO) {
-		 
-		this.rabbitTemplate.convertAndSend(registrationQueue, courseDTO.grades);
-		
+		this.rabbitTemplate.convertAndSend(registrationQueue.getName(), courseDTO);
 	}
 
 }
