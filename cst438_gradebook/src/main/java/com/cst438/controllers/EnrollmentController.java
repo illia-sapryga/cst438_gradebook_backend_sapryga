@@ -31,17 +31,13 @@ public class EnrollmentController {
 	@PostMapping("/enrollment")
 	@Transactional
 	public EnrollmentDTO addEnrollment(@RequestBody EnrollmentDTO enrollmentDTO) {
-		Enrollment enrollment = enrollmentRepository.findByEmailAndCourseId(enrollmentDTO.studentEmail, enrollmentDTO.course_id);
-		if (enrollment==null) {
-			enrollment = new Enrollment();
-			enrollment.setStudentEmail(enrollmentDTO.studentEmail);
-			enrollment.setStudentName(enrollmentDTO.studentName);
-			Course course=courseRepository.findById(enrollmentDTO.course_id).orElse(null);
-			enrollment.setCourse(course);
-			enrollmentRepository.save(enrollment);
-		}
-		return null;
-		
+		Enrollment enrollment = new Enrollment();
+		enrollment.setStudentEmail(enrollmentDTO.studentEmail);
+		enrollment.setStudentName(enrollmentDTO.studentName);
+		Course course=courseRepository.findById(enrollmentDTO.course_id).orElse(null);
+		enrollment.setCourse(course);
+		enrollmentRepository.save(enrollment);
+		return enrollmentDTO;
 	}
 
 }

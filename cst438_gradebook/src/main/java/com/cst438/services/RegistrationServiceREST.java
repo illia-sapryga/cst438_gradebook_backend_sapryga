@@ -19,6 +19,6 @@ public class RegistrationServiceREST extends RegistrationService {
 	
 	@Override
 	public void sendFinalGrades(int course_id , CourseDTOG courseDTO) { 
-		restTemplate.postForEntity(registration_url+"/course/"+course_id+"/finalgrades", courseDTO, CourseDTOG.class);
+		restTemplate.put(registration_url+"/course/"+course_id+"/finalgrades", courseDTO);
 	}
 }
